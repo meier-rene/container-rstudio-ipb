@@ -19,7 +19,7 @@ PORT_PUB=9000
 PORT_DOCKER=8080
 
 # Volumes
-VOL="--volume=/home:/home:rw --volume=/mnt:/mnt:ro"
+VOL="--volume=/home:/home:rw --volume=/raid:/raid:rw --volume=/vol:/vol:rw --volume=/mnt:/mnt:ro"
 
 
 
