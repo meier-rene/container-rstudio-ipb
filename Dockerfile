@@ -86,7 +86,7 @@ RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PA
 RUN R -e "library('devtools'); library('pcaMethods'); install_github(\"vbonhomme/Momocs\"); library('Momocs'); install_github(\"vbonhomme/eigenfaces\")"
 
 # Install BATMAN
-RUN R -e "library('devtools'); install.packages("batman", repos="http://R-Forge.R-project.org")"
+RUN R -e "library('devtools'); install.packages('batman', repos='http://R-Forge.R-project.org')"
 
 # Update R packages
 RUN R -e "update.packages(repos='https://cran.rstudio.com/', ask=F)"
