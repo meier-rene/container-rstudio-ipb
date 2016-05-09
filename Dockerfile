@@ -31,7 +31,7 @@ RUN apt-get -y dist-upgrade
 RUN apt-get -y install wget r-base gdebi-core psmisc libapparmor1
 
 # Install development files needed for general compilation
-RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libglu1-mesa-dev libgomp1 libssl-dev libxml2-dev python xorg-dev
+RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libglu1-mesa-dev libgomp1 libssl-dev libxml2-dev python unzip xorg-dev
 
 # Install tex-related stuff
 RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
@@ -90,6 +90,13 @@ RUN R -e "library('devtools'); install.packages("batman", repos="http://R-Forge.
 
 # Update R packages
 RUN R -e "update.packages(repos='https://cran.rstudio.com/', ask=F)"
+
+# Install SIRIUS
+WORKDIR /tmp
+RUN wget -O /tmp/sirius.zip https://bio.informatik.uni-jena.de/artifactory/libs-releases-local/sirius_3_1_3.zip
+RUN unzip sirius.zip
+RUN mkdir /usr/lib/sirius
+RUN install -m755 sirius.jar /usr/lib/sirius/
 
 
 
