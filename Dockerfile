@@ -14,7 +14,7 @@ ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 
 ENV PACK_R="abind BH cba curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 Hmisc httr klaR kohonen magic Matrix matrixStats mda memoise plotly plotrix R6 rCharts Rcpp rmarkdown rsm rstudioapi RUnit squash tools vegan xslx"
 ENV PACK_BIOC="mtbls2 Risa"
-ENV PACK_GITHUB="dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown vbonhomme/Momocs vbonhomme/eigenfaces"
+ENV PACK_GITHUB="dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces"
 
 
 
@@ -37,7 +37,7 @@ RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev li
 RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
 
 # Install libraries needed by Bioconductor
-RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0ldbl liblzma-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-7-jdk libglpk libglpk-java python-dev python-pip
+RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0ldbl liblzma-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-7-jdk libglpk-dev libglpk-java python-dev python-pip
 
 # Install Xorg environment (needed for compiling some Bioc packages)
 RUN apt-get -y install xauth xinit xterm xvfb
@@ -92,11 +92,10 @@ RUN R -e "library('devtools'); install.packages('batman', repos='http://R-Forge.
 RUN R -e "update.packages(repos='https://cran.rstudio.com/', ask=F)"
 
 # Install SIRIUS
-WORKDIR /tmp
-RUN wget -O /tmp/sirius.zip https://bio.informatik.uni-jena.de/artifactory/libs-releases-local/sirius_3_1_3.zip
-RUN unzip sirius.zip
 RUN mkdir /usr/lib/sirius
-RUN install -m755 sirius.jar /usr/lib/sirius/
+WORKDIR /usr/lib/sirius
+RUN wget -O /tmp/sirius.zip 'https://bio.informatik.uni-jena.de/artifactory/libs-releases-local/sirius_3_1_3_linux64.zip'
+RUN unzip /tmp/sirius.zip
 
 
 
