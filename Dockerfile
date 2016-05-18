@@ -19,6 +19,7 @@ ENV PACK_GITHUB="dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkd
 
 
 # Add cran R backport
+RUN apt-get -y update
 RUN apt-get -y install apt-transport-https
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 RUN echo "deb https://cran.uni-muenster.de/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list
