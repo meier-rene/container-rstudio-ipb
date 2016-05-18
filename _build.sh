@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name
-NAME="korseby/rstudio-server"
+NAME="korseby/rstudio-ipb"
 
 # CPU options
 CPU_SHARES="--cpu-shares=8"

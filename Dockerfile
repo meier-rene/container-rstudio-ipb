@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:xenial
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 
@@ -7,6 +7,7 @@ LABEL Description="Install RStudio Server + important R & Bioconductor packages 
 
 
 # Environment variables
+ENV DEBIAN_FRONTEND=noninteractive
 ENV DISPLAY=":1"
 ENV PATH="/usr/local/bin/:/usr/local/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/bin:/sbin"
 ENV PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig"
@@ -38,7 +39,7 @@ RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev li
 RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
 
 # Install libraries needed by Bioconductor
-RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0ldbl liblzma-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-7-jdk libglpk-dev libglpk-java python-dev python-pip
+RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 liblzma-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-9-jdk-headless libglpk-dev libglpk-java python-dev python-pip
 
 # Install Xorg environment (needed for compiling some Bioc packages)
 RUN apt-get -y install xauth xinit xterm xvfb
