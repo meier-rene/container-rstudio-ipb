@@ -6,7 +6,7 @@
 
 
 # Name
-NAME="rstudio-server"
+NAME="korseby/rstudio-server"
 
 # CPU options
 #CPU_SHARES="--cpu-shares=8"
