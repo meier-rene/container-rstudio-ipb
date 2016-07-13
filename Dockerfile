@@ -45,7 +45,7 @@ RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-me
 RUN apt-get -y install xauth xinit xterm xvfb
 
 # Install libsbml (needed by Bioconductor rsbml)
-RUN wget -O /tmp/libsbml.deb 'http://downloads.sourceforge.net/project/sbml/libsbml/5.12.0/stable/Linux/64-bit/libSBML-5.12.0-Linux-x64.deb?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.12.0%2Fstable%2FLinux%2F64-bit%2F&ts=1455626187&use_mirror=heanet'
+RUN wget -O /tmp/libsbml.deb 'http://downloads.sourceforge.net/project/sbml/libsbml/5.13.0/stable/Linux/64-bit/libSBML-5.13.0-Linux-x64.deb?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.13.0%2Fstable%2FLinux%2F64-bit%2F&ts=1455626187&use_mirror=heanet'
 RUN dpkg -i /tmp/libsbml.deb
 RUN rm /tmp/libsbml.deb
 RUN pip install python-libsbml
