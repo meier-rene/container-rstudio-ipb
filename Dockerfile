@@ -14,7 +14,7 @@ ENV PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib64/pk
 ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 
 ENV PACK_R="abind BH cba curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots Hmisc httr klaR kohonen magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix R6 rCharts Rcpp rmarkdown rsm rstudioapi RUnit squash tools vegan xslx"
-ENV PACK_BIOC="mtbls2 Risa"
+ENV PACK_BIOC="xcms CAMERA mtbls2 pcaMethods Risa"
 ENV PACK_GITHUB="dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces"
 
 
