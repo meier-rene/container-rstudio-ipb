@@ -13,9 +13,9 @@ ENV PATH="/usr/local/bin/:/usr/local/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/bin
 ENV PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig"
 ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 
-ENV PACK_R="abind BH cba curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots Hmisc httr klaR kohonen magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix R6 rcdk rCharts Rcpp rmarkdown rsm rstudioapi RUnit squash tools vegan xslx"
+ENV PACK_R="abind BH cba curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots Hmisc httr klaR kohonen magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix R6 rcdk Rcpp rmarkdown rsm rstudioapi RUnit squash tools vegan xlsx"
 ENV PACK_BIOC="xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA xps DEXSeq SRAdb HTqPCR ddCt ShortRead"
-ENV PACK_GITHUB="cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces"
+ENV PACK_GITHUB="cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
 
 
 
@@ -30,7 +30,7 @@ RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 
 # Install RStudio-related packages
-RUN apt-get -y install wget r-base gdebi-core psmisc libapparmor1
+RUN apt-get -y install wget r-base gdebi-core psmisc libapparmor1 sudo
 
 # Install development files needed for compilation
 RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libglu1-mesa-dev libgomp1 libssl-dev libxml2-dev python unzip xorg-dev
@@ -39,7 +39,7 @@ RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev li
 RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
 
 # Install libraries needed by Bioconductor
-RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 liblzma-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-9-jdk-headless libglpk-dev libglpk-java python-dev python-pip
+RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 liblzma-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip
 
 # Install Xorg environment (needed for compiling some Bioc packages)
 RUN apt-get -y install xauth xinit xterm xvfb
@@ -49,6 +49,17 @@ RUN wget -O /tmp/libsbml.deb 'http://downloads.sourceforge.net/project/sbml/libs
 RUN dpkg -i /tmp/libsbml.deb
 RUN rm /tmp/libsbml.deb
 RUN pip install python-libsbml
+
+# Install ROOT (needed by Bioconductor xps)
+# see http://bioconductor.org/packages/release/bioc/readmes/xps/README
+ENV ROOT_VER="6.06.08"
+RUN wget -O /tmp/root-${ROOT_VER}.tar.gz https://root.cern.ch/download/root_v${ROOT_VER}.source.tar.gz
+WORKDIR /tmp
+RUN tar -xvzf root-${ROOT_VER}.tar.gz
+WORKDIR /tmp/root-$ROOT_VER
+RUN ./configure
+RUN make
+RUN make install
 
 # Install RStudio from their repository
 RUN wget -O /tmp/rstudio.ver --no-check-certificate -q https://s3.amazonaws.com/rstudio-server/current.ver
@@ -132,6 +143,11 @@ RUN echo "service nslcd start" >> /usr/sbin/rstudio-server.sh
 RUN echo "sleep 10" >> /usr/sbin/rstudio-server.sh
 RUN echo "/usr/lib/rstudio-server/bin/rserver --server-daemonize=0" >> /usr/sbin/rstudio-server.sh
 RUN chmod +x /usr/sbin/rstudio-server.sh
+
+
+
+# Perform check whether all packages were installed successfully
+RUN R_LIST=$(R -e 'installed.packages()' | awk '{ print $1 }' | grep -v '^>' | sort | uniq); echo "There are $(echo $R_LIST | wc -w) R packages installed."; R_NOINST=""; for i in $PACK_R; do if [[ "${R_LIST}" == "${R_LIST/$i/}" ]]; then R_NOINST="${R_NOINST} $i"; fi; done; for i in $PACK_BIOC; do if [[ "${R_LIST}" == "${R_LIST/$i/}" ]]; then R_NOINST="${R_NOINST} $i"; fi; done; if [[ "${R_NOINST}" != "" ]]; then echo "The following packages failed to install: ${R_NOINST}"; fi
 
 
 
