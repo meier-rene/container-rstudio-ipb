@@ -2,7 +2,7 @@ FROM ubuntu:xenial
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 
-LABEL Description="Install RStudio Server + important R & Bioconductor packages in Docker."
+LABEL Description="Full-blown RStudio Server metabolomics installation."
 
 
 
@@ -13,8 +13,9 @@ ENV PATH="/usr/local/bin/:/usr/local/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/bin
 ENV PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig"
 ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 
+# R packages
 ENV PACK_R="abind BH cba curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots Hmisc httr klaR kohonen magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix R6 rcdk Rcpp rmarkdown rsm rstudioapi RUnit squash tools vegan xlsx"
-ENV PACK_BIOC="xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA xps DEXSeq SRAdb HTqPCR ddCt ShortRead"
+ENV PACK_BIOC="xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA DEXSeq SRAdb HTqPCR ddCt ShortRead"
 ENV PACK_GITHUB="cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
 
 
@@ -49,17 +50,6 @@ RUN wget -O /tmp/libsbml.deb 'http://downloads.sourceforge.net/project/sbml/libs
 RUN dpkg -i /tmp/libsbml.deb
 RUN rm /tmp/libsbml.deb
 RUN pip install python-libsbml
-
-# Install ROOT (needed by Bioconductor xps)
-# see http://bioconductor.org/packages/release/bioc/readmes/xps/README
-ENV ROOT_VER="6.06.08"
-RUN wget -O /tmp/root-${ROOT_VER}.tar.gz https://root.cern.ch/download/root_v${ROOT_VER}.source.tar.gz
-WORKDIR /tmp
-RUN tar -xvzf root-${ROOT_VER}.tar.gz
-WORKDIR /tmp/root-$ROOT_VER
-RUN ./configure
-RUN make
-RUN make install
 
 # Install RStudio from their repository
 RUN wget -O /tmp/rstudio.ver --no-check-certificate -q https://s3.amazonaws.com/rstudio-server/current.ver
@@ -99,6 +89,17 @@ RUN R -e "library('devtools'); library('pcaMethods'); install_github(\"vbonhomme
 
 # Install BATMAN
 RUN R -e "library('devtools'); install.packages('batman', repos='http://R-Forge.R-project.org')"
+
+# Install ROOT + Bioconductor xps
+# see http://bioconductor.org/packages/release/bioc/readmes/xps/README
+ENV ROOT_VER="6.06.08"
+RUN wget -O /usr/src/root-${ROOT_VER}.tar.gz https://root.cern.ch/download/root_v${ROOT_VER}.source.tar.gz
+WORKDIR /usr/src
+RUN tar -xvzf root-${ROOT_VER}.tar.gz
+WORKDIR /usr/src/root-$ROOT_VER
+RUN ./configure
+RUN make
+RUN source /usr/src/root-$ROOT_VER/bin/thisroot.sh && R -e "source('https://bioconductor.org/biocLite.R'); biocLite('xps')"
 
 # Update R packages
 RUN R -e "update.packages(repos='https://cran.rstudio.com/', ask=F)"
@@ -147,7 +148,7 @@ RUN chmod +x /usr/sbin/rstudio-server.sh
 
 
 # Perform check whether all packages were installed successfully
-RUN R_LIST=$(R -e 'installed.packages()' | awk '{ print $1 }' | grep -v '^>' | sort | uniq); echo "There are $(echo $R_LIST | wc -w) R packages installed."; R_NOINST=""; for i in $PACK_R; do if [[ "${R_LIST}" == "${R_LIST/$i/}" ]]; then R_NOINST="${R_NOINST} $i"; fi; done; for i in $PACK_BIOC; do if [[ "${R_LIST}" == "${R_LIST/$i/}" ]]; then R_NOINST="${R_NOINST} $i"; fi; done; if [[ "${R_NOINST}" != "" ]]; then echo "The following packages failed to install: ${R_NOINST}"; fi
+RUN R_LIST=$(R -e 'installed.packages()' | awk '{ print $1 }' | grep -v '^>' | sort | uniq); echo "There are $(echo $R_LIST | wc -w) R packages installed."; R_NOINST=""; for i in $PACK_R; do if [[ "${R_LIST}" == "${R_LIST/$i/}" ]]; then R_NOINST="${R_NOINST} $i"; fi; done; for i in $PACK_BIOC; do if [[ "${R_LIST}" == "${R_LIST/$i/}" ]]; then R_NOINST="${R_NOINST} $i"; fi; done; if [[ "${R_NOINST}" != "" ]]; then echo "The following packages failed to install: ${R_NOINST}"; exit 1; fi
 
 
 
