@@ -34,7 +34,7 @@ RUN apt-get -y dist-upgrade
 RUN apt-get -y install wget r-base gdebi-core psmisc libapparmor1 sudo
 
 # Install development files needed for compilation
-RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libglu1-mesa-dev libgomp1 libssl-dev libxml2-dev python unzip xorg-dev
+RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libglu1-mesa-dev libgomp1 libssl-dev libxml2-dev pkg-config python unzip xorg-dev
 
 # Install tex-related stuff (needed by some R packages)
 RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
@@ -45,10 +45,10 @@ RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-me
 # Install Xorg environment (needed for compiling some Bioc packages)
 RUN apt-get -y install xauth xinit xterm xvfb
 
-# Install libsbml (needed by Bioconductor rsbml)
-RUN wget -O /tmp/libsbml.deb 'http://downloads.sourceforge.net/project/sbml/libsbml/5.13.0/stable/Linux/64-bit/libSBML-5.13.0-Linux-x64.deb?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.13.0%2Fstable%2FLinux%2F64-bit%2F&ts=1455626187&use_mirror=heanet'
-RUN dpkg -i /tmp/libsbml.deb
-RUN rm /tmp/libsbml.deb
+# Rsbml needs libsbml == 5.10.2, so install that
+#RUN apt-get -y install libsbml5-dev libsbml5-python libsbml5-perl libsbml5-java libsbml5-cil libsbml5-dbg
+WORKDIR /usr/src
+RUN wget -O libSBML-5.10.2-core-src.tar.gz 'http://downloads.sourceforge.net/project/sbml/libsbml/5.10.2/stable/libSBML-5.10.2-core-src.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.10.2%2Fstable%2F' && tar xzvf libSBML-5.10.2-core-src.tar.gz ; cd libsbml-5.10.2 ; CXXFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=/usr && make && make install && ldconfig
 RUN pip install python-libsbml
 
 # Install RStudio from their repository
@@ -68,18 +68,15 @@ RUN R CMD javareconf
 # Install R packages
 RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\", repos='https://cran.rstudio.com/')"; done
 
-# Install metabolomics R packages from Bioconductor
-RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
+# Install Bioconductor packages
 ADD installFromBiocViews.R /tmp/installFromBiocViews.R
-ADD xinitrc /root/.xinitrc
-RUN chmod +x /root/.xinitrc
-RUN echo -n > /root/.Xauthority
-RUN dd if=/dev/urandom count=1 | sha256sum | sed -e "s/^/add $DISPLAY . /" | sed -e "s/ \-.*//" | /usr/bin/xauth -f /root/.Xauthority -q
-RUN xinit -- /usr/bin/Xvfb $DISPLAY -screen 0 800x600x16 -dpi 75 -nolisten tcp -audit 4 -ac -auth /root/.Xauthority 1>&2 2>/dev/null
-# will be RUN in .xinitrc: xterm -display $DISPLAY -e R -f /tmp/installFromBiocViews.R
+RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
+#RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite('rsbml', dep=TRUE, ask=FALSE)"
+RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", dep=TRUE, ask=FALSE)"; done
 
-# Install other Bioconductor packages
-RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", ask=FALSE)"; done
+# Install Bioconductor "Metabolomics" flavour
+ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/devel_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
+RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
 
 # Install other R packages from source
 RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
@@ -99,7 +96,7 @@ RUN tar -xvzf root-${ROOT_VER}.tar.gz
 WORKDIR /usr/src/root-$ROOT_VER
 RUN ./configure
 RUN make
-RUN source /usr/src/root-$ROOT_VER/bin/thisroot.sh && R -e "source('https://bioconductor.org/biocLite.R'); biocLite('xps')"
+RUN bash -c 'source /usr/src/root-$ROOT_VER/bin/thisroot.sh && R -e "source(\"https://bioconductor.org/biocLite.R\"); biocLite(\"xps\")"'
 
 # Update R packages
 RUN R -e "update.packages(repos='https://cran.rstudio.com/', ask=F)"
@@ -144,11 +141,6 @@ RUN echo "service nslcd start" >> /usr/sbin/rstudio-server.sh
 RUN echo "sleep 10" >> /usr/sbin/rstudio-server.sh
 RUN echo "/usr/lib/rstudio-server/bin/rserver --server-daemonize=0" >> /usr/sbin/rstudio-server.sh
 RUN chmod +x /usr/sbin/rstudio-server.sh
-
-
-
-# Perform check whether all packages were installed successfully
-RUN R_LIST=$(R -e 'installed.packages()' | awk '{ print $1 }' | grep -v '^>' | sort | uniq); echo "There are $(echo $R_LIST | wc -w) R packages installed."; R_NOINST=""; for i in $PACK_R; do if [[ "${R_LIST}" == "${R_LIST/$i/}" ]]; then R_NOINST="${R_NOINST} $i"; fi; done; for i in $PACK_BIOC; do if [[ "${R_LIST}" == "${R_LIST/$i/}" ]]; then R_NOINST="${R_NOINST} $i"; fi; done; if [[ "${R_NOINST}" != "" ]]; then echo "The following packages failed to install: ${R_NOINST}"; exit 1; fi
 
 
 
