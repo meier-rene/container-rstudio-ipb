@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM docker-registry.phenomenal-h2020.eu/phnmnl/bioc_release_metabolomics
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 
@@ -20,42 +20,11 @@ ENV PACK_GITHUB="cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glib
 
 
 
-# Add cran R backport
+# Update sources
 RUN apt-get -y update
-RUN apt-get -y install apt-transport-https
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-RUN echo "deb https://mirrors.ebi.ac.uk/CRAN/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list
 
-# Update & upgrade sources
-RUN apt-get -y update
-RUN apt-get -y dist-upgrade
-
-# Install RStudio-related packages
-RUN apt-get -y install wget r-base gdebi-core psmisc libapparmor1 sudo
-
-# Install development files needed for compilation
-RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libglu1-mesa-dev libgomp1 libssl-dev libxml2-dev pkg-config python unzip xorg-dev
-
-# Install tex-related stuff (needed by some R packages)
-RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
-
-# Install libraries needed by Bioconductor
-RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip
-
-# Install Xorg environment (needed for compiling some Bioc packages)
-RUN apt-get -y install xauth xinit xterm xvfb
-
-# Rsbml needs libsbml == 5.10.2, so install that
-#RUN apt-get -y install libsbml5-dev libsbml5-python libsbml5-perl libsbml5-java libsbml5-cil libsbml5-dbg
-WORKDIR /usr/src
-RUN wget -O libSBML-5.10.2-core-src.tar.gz 'http://downloads.sourceforge.net/project/sbml/libsbml/5.10.2/stable/libSBML-5.10.2-core-src.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.10.2%2Fstable%2F' && tar xzvf libSBML-5.10.2-core-src.tar.gz ; cd libsbml-5.10.2 ; CXXFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=/usr && make && make install && ldconfig
-RUN pip install python-libsbml
-
-# Install RStudio from their repository
-RUN wget -O /tmp/rstudio.ver --no-check-certificate -q https://s3.amazonaws.com/rstudio-server/current.ver
-RUN wget -O /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb -q http://download2.rstudio.org/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
-RUN dpkg -i /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
-RUN rm /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
+# Install dependencies
+RUN apt-get -y install libxpm-dev libgfortran-5-dev libgfortran-6-dev
 
 # Clean up
 RUN apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/{cache,log}/ /tmp/* /var/tmp/*
@@ -71,12 +40,7 @@ RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\", repos='https://cra
 # Install Bioconductor packages
 ADD installFromBiocViews.R /tmp/installFromBiocViews.R
 RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
-#RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite('rsbml', dep=TRUE, ask=FALSE)"
 RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", dep=TRUE, ask=FALSE)"; done
-
-# Install Bioconductor "Metabolomics" flavour
-ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/devel_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
-RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
 
 # Install other R packages from source
 RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
@@ -87,8 +51,15 @@ RUN R -e "library('devtools'); library('pcaMethods'); install_github(\"vbonhomme
 # Install BATMAN
 RUN R -e "library('devtools'); install.packages('batman', repos='http://R-Forge.R-project.org')"
 
+# Install BatchCorr
+RUN R -e "devtools::install_git('https://gitlab.com/CarlBrunius/batchCorr.git')"
+
+
+
 # Install ROOT + Bioconductor xps
 # see http://bioconductor.org/packages/release/bioc/readmes/xps/README
+# Prevent Debian Bug
+RUN ln -s /usr/lib/gcc/x86_64-linux-gnu/5/libgfortranbegin.a /usr/lib/gcc/x86_64-linux-gnu/6/libgfortranbegin.a
 ENV ROOT_VER="6.06.08"
 RUN wget -O /usr/src/root-${ROOT_VER}.tar.gz https://root.cern.ch/download/root_v${ROOT_VER}.source.tar.gz
 WORKDIR /usr/src
@@ -120,7 +91,7 @@ RUN chmod +x /usr/sbin/rstudio-server.sh
 
 # Infrastructure specific
 RUN groupadd -g 9999 -f rstudio
-RUN useradd -d /home/rstudio -m -g rstudio -u 9999 -s /bin/bash rstudio
+#RUN useradd -d /home/rstudio -m -g rstudio -u 9999 -s /bin/bash rstudio
 RUN echo 'rstudio:docker' | chpasswd
 
 RUN apt-get -y install ldap-utils libpam-ldapd libnss-ldapd libldap2-dev nslcd tcsh
