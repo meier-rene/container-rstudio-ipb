@@ -4,11 +4,11 @@
 NAME="korseby/rstudio-ipb"
 
 # CPU options
-CPUS="8"
-CPU_SHARES="--cpu-shares=${CPUS}"
-CPU_SETS="--cpuset-cpus=0-$[${CPUS}-1]"
-CPU_MEMS="--cpuset-mems=0"
-MEM="--memory=24g"
+#CPUS="8"
+#CPU_SHARES="--cpu-shares=${CPUS}"
+#CPU_SETS="--cpuset-cpus=0-$[${CPUS}-1]"
+#CPU_MEMS="--cpuset-mems=0"
+#MEM="--memory=24g"
 
 
 
@@ -30,4 +30,5 @@ mkdir -p etc/ssl/certs
 cp -r -f /etc/ssl/certs/I* etc/ssl/certs/
 
 # Build docker
-docker build --no-cache --rm=true $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --tag=$NAME .
+docker build --rm=true $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --tag=$NAME .
+

@@ -24,7 +24,7 @@ VOL="--volume=/home:/home:rw --volume=/raid:/raid:rw --volume=/vol:/vol:rw --vol
 
 
 # Run docker
-docker run --publish=${PORT_PUB}:${PORT_DOCKER} --log-driver=syslog $VOL $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --name="$(echo ${NAME} | sed -e 's/.*\///')-run" -i -t -d $NAME
+docker run --privileged --publish=${PORT_PUB}:${PORT_DOCKER} --log-driver=syslog $VOL $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --name="$(echo ${NAME} | sed -e 's/.*\///')-run" -i -t -d $NAME
 
 
 
