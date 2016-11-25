@@ -78,6 +78,8 @@ WORKDIR /usr/lib/sirius
 RUN wget -O /tmp/sirius.zip 'https://bio.informatik.uni-jena.de/artifactory/libs-releases-local/sirius_3_1_3_linux64.zip'
 RUN unzip /tmp/sirius.zip
 
+# Install mzml2isa
+RUN pip install mzml2isa
 
 
 # Configure RStudio server
@@ -120,5 +122,5 @@ EXPOSE 8080
 
 # Define Entry point script
 WORKDIR /
-ENTRYPOINT ["/bin/sh","/usr/sbin/rstudio-server.sh"]
+CMD ["/usr/sbin/rstudio-server.sh"]
 
