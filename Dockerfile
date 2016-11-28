@@ -14,8 +14,8 @@ ENV PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib64/pk
 ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 
 # R packages
-ENV PACK_R="abind BH cba curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots Hmisc httr klaR kohonen magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix R6 rcdk Rcpp rmarkdown rsm rstudioapi RUnit squash tools vegan xlsx"
-ENV PACK_BIOC="xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA DEXSeq SRAdb HTqPCR ddCt ShortRead"
+ENV PACK_R="abind BH cba curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots hash Hmisc httr jsonlite klaR kohonen magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix pryr R6 rcdk Rcpp rmarkdown RMySQL rsm rstudioapi RJSONIO RUnit squash tools vegan xlsx"
+ENV PACK_BIOC="xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer RCy3 RCytoscape Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA XMLRPC DEXSeq SRAdb HTqPCR ddCt ShortRead"
 ENV PACK_GITHUB="cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
 
 
@@ -94,7 +94,10 @@ RUN chmod +x /usr/sbin/rstudio-server.sh
 # Infrastructure specific
 RUN groupadd -g 9999 -f rstudio
 #RUN useradd -d /home/rstudio -m -g rstudio -u 9999 -s /bin/bash rstudio
-RUN echo 'rstudio:docker' | chpasswd
+#RUN echo 'rstudio:docker' | chpasswd
+#USER root
+#RUN umount /home/rstudio
+#RUN rm -rf /home/rstudio
 
 RUN apt-get -y install ldap-utils libpam-ldapd libnss-ldapd libldap2-dev nslcd tcsh
 WORKDIR /
