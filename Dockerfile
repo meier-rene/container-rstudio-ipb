@@ -1,4 +1,4 @@
-FROM docker-registry.phenomenal-h2020.eu/phnmnl/bioc_release_metabolomics
+FROM ubuntu:xenial
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 
@@ -14,20 +14,48 @@ ENV PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib64/pk
 ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 
 # R packages
-ENV PACK_R="abind BH cba curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots hash Hmisc httr jsonlite klaR kohonen languageR lme4 lmerTest magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix pryr R6 rcdk Rcpp rmarkdown RMySQL rsm rstudioapi RJSONIO RUnit squash tools vegan xlsx"
+ENV PACK_R="abind BH cba corrplot curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots hash Hmisc httr jsonlite klaR kohonen languageR lme4 lmerTest magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix pryr qtlcharts R6 rcdk Rcpp rmarkdown RMySQL rsm rstudioapi RJSONIO RUnit squash tools vegan xlsx"
 ENV PACK_BIOC="xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer RCy3 RCytoscape Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA XMLRPC DEXSeq SRAdb HTqPCR ddCt ShortRead"
 ENV PACK_GITHUB="cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
 
 
 
-# Update sources
+# Add cran R backport
 RUN apt-get -y update
+RUN apt-get -y install apt-transport-https
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+RUN echo "deb https://mirrors.ebi.ac.uk/CRAN/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list
 
-# Install dependencies
-RUN apt-get -y install libxpm-dev libgfortran-5-dev libgfortran-6-dev
+# Update and upgrade sources
+RUN apt-get -y update
+RUN apt-get -y dist-upgrade
 
-# Clean up
-RUN apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/{cache,log}/ /tmp/* /var/tmp/*
+# Install RStudio-related packages
+RUN apt-get -y install wget r-base gdebi-core psmisc libapparmor1 sudo
+
+# Install development files needed for compilation
+RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libgfortran-5-dev libglu1-mesa-dev libgomp1 libssl-dev libxml2-dev libxpm-dev pkg-config python unzip xorg-dev
+
+# Install tex-related stuff (needed by some R packages)
+RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
+
+# Install libraries needed by Bioconductor
+RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip
+
+# Install Xorg environment (needed for compiling some Bioc packages)
+RUN apt-get -y install xauth xinit xterm xvfb
+
+# Rsbml needs libsbml == 5.10.2, so install that
+#RUN apt-get -y install libsbml5-dev libsbml5-python libsbml5-perl libsbml5-java libsbml5-cil libsbml5-dbg
+WORKDIR /usr/src
+RUN wget -O libSBML-5.10.2-core-src.tar.gz 'http://downloads.sourceforge.net/project/sbml/libsbml/5.10.2/stable/libSBML-5.10.2-core-src.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.10.2%2Fstable%2F' && tar xzvf libSBML-5.10.2-core-src.tar.gz ; cd libsbml-5.10.2 ; CXXFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=/usr && make && make install && ldconfig
+RUN pip install python-libsbml
+
+# Install RStudio from their repository
+RUN wget -O /tmp/rstudio.ver --no-check-certificate -q https://s3.amazonaws.com/rstudio-server/current.ver
+RUN wget -O /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb -q http://download2.rstudio.org/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
+RUN dpkg -i /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
+RUN rm /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
 
 
 
@@ -40,9 +68,14 @@ RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\", repos='https://cra
 # Install Bioconductor packages
 ADD installFromBiocViews.R /tmp/installFromBiocViews.R
 RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
+#RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite('rsbml', dep=TRUE, ask=FALSE)"
 RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", dep=TRUE, ask=FALSE)"; done
 
-# Install other R packages from source
+# Install Bioconductor "Metabolomics" flavour
+#ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
+#RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
+
+# Install github R packages from source
 RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
 
 # Install eigenfaces from source
@@ -53,8 +86,6 @@ RUN R -e "library('devtools'); install.packages('batman', repos='http://R-Forge.
 
 # Install BatchCorr
 RUN R -e "devtools::install_git('https://gitlab.com/CarlBrunius/batchCorr.git')"
-
-
 
 # Install ROOT + Bioconductor xps
 # see http://bioconductor.org/packages/release/bioc/readmes/xps/README
@@ -69,9 +100,6 @@ RUN ./configure
 RUN make
 RUN bash -c 'source /usr/src/root-$ROOT_VER/bin/thisroot.sh && R -e "source(\"https://bioconductor.org/biocLite.R\"); biocLite(\"xps\")"'
 
-# Update R packages
-RUN R -e "update.packages(repos='https://cran.rstudio.com/', ask=F)"
-
 # Install SIRIUS
 RUN mkdir /usr/lib/sirius
 WORKDIR /usr/lib/sirius
@@ -80,6 +108,10 @@ RUN unzip /tmp/sirius.zip
 
 # Install mzml2isa
 RUN pip install mzml2isa
+
+# Update R packages
+RUN R -e "update.packages(repos='https://cran.rstudio.com/', ask=F)"
+
 
 
 # Configure RStudio server
@@ -93,11 +125,8 @@ RUN chmod +x /usr/sbin/rstudio-server.sh
 
 # Infrastructure specific
 RUN groupadd -g 9999 -f rstudio
-#RUN useradd -d /home/rstudio -m -g rstudio -u 9999 -s /bin/bash rstudio
-#RUN echo 'rstudio:docker' | chpasswd
-#USER root
-#RUN umount /home/rstudio
-#RUN rm -rf /home/rstudio
+RUN useradd -d /home/rstudio -m -g rstudio -u 9999 -s /bin/bash rstudio
+RUN echo 'rstudio:docker' | chpasswd
 
 RUN apt-get -y install ldap-utils libpam-ldapd libnss-ldapd libldap2-dev nslcd tcsh
 WORKDIR /
@@ -112,11 +141,19 @@ RUN update-rc.d nslcd enable
 RUN mkdir /raid
 RUN ln -s /home /raid/home
 
+
+
+# Create RStudio start script
 RUN echo "#!/bin/sh" > /usr/sbin/rstudio-server.sh
 RUN echo "service nslcd start" >> /usr/sbin/rstudio-server.sh
 RUN echo "sleep 10" >> /usr/sbin/rstudio-server.sh
 RUN echo "/usr/lib/rstudio-server/bin/rserver --server-daemonize=0" >> /usr/sbin/rstudio-server.sh
 RUN chmod +x /usr/sbin/rstudio-server.sh
+
+
+
+# Clean up
+RUN apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/{cache,log}/ /tmp/* /var/tmp/*
 
 
 
