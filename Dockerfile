@@ -14,7 +14,7 @@ ENV PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib64/pk
 ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 
 # R packages
-ENV PACK_R="abind BH cba corrplot curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR geometry ggplot2 gplots hash Hmisc httr jsonlite klaR kohonen languageR lme4 lmerTest magic Matrix matrixStats mda memoise MetStaT multcomp plotly plotrix pryr qtlcharts R6 rcdk Rcpp rmarkdown RMySQL rsm rstudioapi RJSONIO RUnit squash tools vegan xlsx"
+ENV PACK_R="abind BH cba corrplot curl dendextend devtools doSNOW eigenfaces extrafont FactoMineR flexclust geometry ggplot2 gplots hash Hmisc httr jsonlite klaR kohonen languageR lme4 lmerTest magic Matrix matrixStats mda memoise MetStaT multcomp multisom plotly plotrix pryr qtlcharts R6 rcdk Rcpp rmarkdown RMySQL rsm rstudioapi RJSONIO RUnit squash tools vegan xlsx"
 ENV PACK_BIOC="xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer RCy3 RCytoscape Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA XMLRPC DEXSeq SRAdb HTqPCR ddCt ShortRead"
 ENV PACK_GITHUB="cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
 
@@ -40,7 +40,7 @@ RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev li
 RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
 
 # Install libraries needed by Bioconductor
-RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip
+RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 libgtk2.0-dev libgtk-3-dev liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libopenbabel-dev libpcre3-dev libpng12-dev libtiff5-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip
 
 # Install Xorg environment (needed for compiling some Bioc packages)
 RUN apt-get -y install xauth xinit xterm xvfb
@@ -68,12 +68,11 @@ RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\", repos='https://cra
 # Install Bioconductor packages
 ADD installFromBiocViews.R /tmp/installFromBiocViews.R
 RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
-#RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite('rsbml', dep=TRUE, ask=FALSE)"
 RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", dep=TRUE, ask=FALSE)"; done
 
 # Install Bioconductor "Metabolomics" flavour
-#ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
-#RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
+ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
+RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
 
 # Install github R packages from source
 RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
