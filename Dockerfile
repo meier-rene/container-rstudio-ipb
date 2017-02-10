@@ -65,13 +65,14 @@ RUN R CMD javareconf
 # Install R packages
 RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\", repos='https://cran.rstudio.com/')"; done
 
-# Install Bioconductor packages
+# Install Bioconductor packages manually first
 ADD installFromBiocViews.R /tmp/installFromBiocViews.R
 RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
 RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", dep=TRUE, ask=FALSE)"; done
 
 # Install Bioconductor "Metabolomics" flavour
-ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
+#ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
+ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/install.R /tmp/installFromBiocViews.R
 RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
 
 # Install github R packages from source
