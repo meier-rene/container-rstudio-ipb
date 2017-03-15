@@ -30,5 +30,5 @@ mkdir -p etc/ssl/certs
 cp -r -f /etc/ssl/certs/I* etc/ssl/certs/
 
 # Build docker
-docker build --rm=true $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --tag=$NAME .
+docker build --no-cache --rm=true $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --tag=$NAME .
 
