@@ -75,6 +75,9 @@ RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\",
 ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/install.R /tmp/installFromBiocViews.R
 RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
 
+# Update Bioconductor to most recent version
+RUN E -r "source('https://bioconductor.org/biocLite.R'); biocValid(); biocLite(ask=F)"
+
 # Install github R packages from source
 RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
 
