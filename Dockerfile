@@ -24,7 +24,7 @@ ENV PACK_GITHUB="cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glib
 RUN apt-get -y update
 RUN apt-get -y install apt-transport-https
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-RUN echo "deb https://mirrors.ebi.ac.uk/CRAN/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
+RUN echo "deb https://cran.uni-muenster.de/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
 
 # Update and upgrade sources
 RUN apt-get -y update
