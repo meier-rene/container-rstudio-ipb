@@ -30,6 +30,11 @@ RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/" >> /e
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 
+# Generate locales
+ENV LC_ALL="en_US.UTF-8"
+ENV LC_CTYPE="en_US.UTF-8"
+RUN dpkg-reconfigure locales
+
 # Install RStudio-related packages
 RUN apt-get -y install wget r-base gdebi-core psmisc libapparmor1 sudo
 
