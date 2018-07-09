@@ -42,7 +42,7 @@ RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev li
 RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
 
 # Install libraries needed by R packages and Bioconductor
-RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 libgtk2.0-dev libgtk-3-dev liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libnlopt-dev libopenbabel-dev libpcre3-dev libpng12-dev libtiff5-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip udunits librsvg2-dev
+RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 libgtk2.0-dev libgtk-3-dev liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libnlopt-dev libopenbabel-dev libpcre3-dev libpng12-dev libtiff5-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip libudunits2-dev librsvg2-dev
 
 #Install magick 
 RUN add-apt-repository -y ppa:opencpu/imagemagick
