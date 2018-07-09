@@ -47,7 +47,7 @@ RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-
 #Install magick 
 RUN add-apt-repository -y ppa:opencpu/imagemagick
 RUN apt update
-RUN apt-get install -y imagemagick++-dev
+RUN apt-get install -y imagemagick
 
 # Install Xorg environment (needed for compiling some Bioc packages)
 RUN apt-get -y install xauth xinit xterm xvfb
