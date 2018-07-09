@@ -70,7 +70,7 @@ RUN rm /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
 RUN R CMD javareconf
 
 #Set repositories permanently
-RUN echo "utils::setRepositories(ind=1:5)" >> /etc/R/Renviron.site
+RUN echo "utils::setRepositories(ind=1:5)" >> /etc/R/Rprofile.site
 
 # Install R packages
 RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\")"; done
