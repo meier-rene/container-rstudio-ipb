@@ -123,7 +123,7 @@ RUN bash -c 'source /usr/src/root-$ROOT_VER/bin/thisroot.sh && R -e "source(\"ht
 # Install SIRIUS
 RUN mkdir /usr/lib/sirius
 WORKDIR /usr/lib/sirius
-RUN wget -O /tmp/sirius.zip 'https://bio.informatik.uni-jena.de/artifactory/libs-releases-local/sirius_3_1_3_linux64.zip'
+RUN wget -O /tmp/sirius.zip 'https://bio.informatik.uni-jena.de/repository/dist-release-local/de/unijena/bioinf/ms/sirius/4.0/sirius-4.0-linux64-headless.zip'
 RUN unzip /tmp/sirius.zip
 
 # Install mzml2isa
