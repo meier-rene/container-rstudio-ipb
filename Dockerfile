@@ -18,7 +18,7 @@ ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 #ENV PACK_BIOC="xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer RCy3 RCytoscape ropls Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA XMLRPC DEXSeq SRAdb HTqPCR ddCt ShortRead"
 #Now CRAN packages have also bioconductor dependencies
 ENV PACK_R="abind ade4 ape arm BH cba clValid corrplot curl DBI dendextend devtools diverse doSNOW eigenfaces extrafont FactoMineR FD flexclust geometry ggplot2 gplots hash Hmisc httr jsonlite klaR kohonen languageR limma lme4 lmerTest magic Matrix matrixStats mda memoise metabolomics MetStaT mixOmics multcomp multisom picante plotly plotrix pryr pvclust qtlcharts R6 randomForest rcdk Rcpp rmarkdown RMySQL robustrao rsm rstudioapi RJSONIO RUnit squash tools vegan xlsx xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer RCy3 RCytoscape ropls Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA XMLRPC DEXSeq SRAdb HTqPCR ddCt ShortRead ChemmineR"
-ENV PACK_GITHUB="sneumann/xcms cdkr/rinchi cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
+ENV PACK_GITHUB="sneumann/xcms rajarshi/cdkr/rinchi cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
 ENV PACK_URL="https://cran.r-project.org/src/contrib/Archive/GenABEL.data/GenABEL.data_1.0.0.tar.gz https://cran.r-project.org/src/contrib/Archive/GenABEL/GenABEL_1.8-0.tar.gz"
 
 
@@ -122,9 +122,10 @@ RUN bash -c 'source /usr/src/root-$ROOT_VER/bin/thisroot.sh && R -e "source(\"ht
 
 # Install SIRIUS
 RUN mkdir /usr/lib/sirius
-WORKDIR /usr/lib/sirius
+WORKDIR /tmp
 RUN wget -O /tmp/sirius.zip 'https://bio.informatik.uni-jena.de/repository/dist-release-local/de/unijena/bioinf/ms/sirius/4.0/sirius-4.0-linux64-headless.zip'
 RUN unzip /tmp/sirius.zip
+RUN cp sirius*/lib/* /usr/lib/sirius/
 
 # Install mzml2isa
 RUN pip install mzml2isa
