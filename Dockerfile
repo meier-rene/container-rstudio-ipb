@@ -32,6 +32,11 @@ RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/" >> /e
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 
+# Generate locales
+ENV LC_ALL="en_US.UTF-8"
+ENV LC_CTYPE="en_US.UTF-8"
+RUN dpkg-reconfigure locales
+
 # Install RStudio-related packages
 RUN apt-get -y install wget r-base r-base-dev gdebi-core psmisc libapparmor1 sudo
 
@@ -39,9 +44,10 @@ RUN apt-get -y install wget r-base r-base-dev gdebi-core psmisc libapparmor1 sud
 RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libgfortran-5-dev libglu1-mesa-dev libgomp1 libmariadb-client-lgpl-dev libmysqlclient-dev libssl-dev libxml2-dev libxpm-dev pkg-config python tk8.6-dev unzip xorg-dev software-properties-common
 
 # Install tex-related stuff (needed by some R packages)
-RUN apt-get -y install bibtool texlive-base texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
+RUN apt-get -y install bibtool texlive-full texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
 
 # Install libraries needed by R packages and Bioconductor
+
 RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 libgtk2.0-dev libgtk-3-dev liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libnlopt-dev libopenbabel-dev libpcre3-dev libpng12-dev libtiff5-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip libudunits2-dev librsvg2-dev libgeos-dev
 
 #Install magick 
@@ -99,7 +105,7 @@ RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PA
 RUN R -e "library('devtools'); library('pcaMethods'); install_github(\"vbonhomme/Momocs\"); library('Momocs'); install_github(\"vbonhomme/eigenfaces\")"
 
 # Install CAMERA 1.33.3
-RUN R -e 'library(devtools); install_github(repo="sneumann/CAMERA", ref="cbc9cdb2eba6438434c27fec5fa13c9e6fdda785")'
+#RUN R -e 'library(devtools); install_github(repo="sneumann/CAMERA", ref="cbc9cdb2eba6438434c27fec5fa13c9e6fdda785")'
 
 # Install BATMAN
 RUN R -e "library('devtools'); install.packages('batman', repos='http://R-Forge.R-project.org')"
