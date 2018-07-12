@@ -33,6 +33,7 @@ RUN apt-get -y dist-upgrade
 # Generate locales
 ENV LC_ALL="en_US.UTF-8"
 ENV LC_CTYPE="en_US.UTF-8"
+RUN locale-gen $LC_ALL
 RUN dpkg-reconfigure locales
 
 # Install RStudio-related packages
