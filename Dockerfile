@@ -37,7 +37,7 @@ RUN locale-gen $LC_ALL
 RUN dpkg-reconfigure locales
 
 # Install RStudio-related packages
-RUN apt-get -y install wget r-base r-base-dev gdebi-core psmisc libapparmor1 sudo
+RUN apt-get -y install curl wget r-base r-base-dev gdebi-core psmisc libapparmor1 sudo
 
 # Install development files needed for compilation
 RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libgfortran-5-dev libglu1-mesa-dev libgomp1 libmariadb-client-lgpl-dev libmysqlclient-dev libssl-dev libxml2-dev libxpm-dev pkg-config python tk8.6-dev unzip xorg-dev software-properties-common
