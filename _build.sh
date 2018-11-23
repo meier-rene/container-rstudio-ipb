@@ -20,7 +20,7 @@ NAME="korseby/rstudio-ipb"
 PWD="$(pwd)"
 mkdir -p etc
 alias cp='cp'
-cp -r -f /etc/ldap.conf etc/ldap.conf
+#cp -r -f /etc/ldap.conf etc/ldap.conf
 cp -r -f /etc/ldap etc/ldap
 cp -r -f /etc/pam.d etc/pam.d
 cp -r -f /etc/nsswitch.conf etc/nsswitch.conf
@@ -30,5 +30,5 @@ mkdir -p etc/ssl/certs
 cp -r -f /etc/ssl/certs/I* etc/ssl/certs/
 
 # Build docker
-docker build --no-cache --rm=true $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --tag=$NAME .
+docker build --rm=true $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --tag=$NAME .
 

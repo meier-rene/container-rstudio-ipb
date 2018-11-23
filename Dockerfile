@@ -156,13 +156,13 @@ RUN echo 'rstudio:docker' | chpasswd
 
 RUN apt-get -y install ldap-utils libpam-ldapd libnss-ldapd libldap2-dev nslcd tcsh
 WORKDIR /
-ADD etc/ldap.conf /etc/ldap.conf
-ADD etc/ldap /etc/ldap
+#ADD etc/ldap.conf /etc/ldap.conf
+#ADD etc/ldap /etc/ldap
 ADD etc/pam.d /etc/pam.d
 ADD etc/nsswitch.conf /etc/nsswitch.conf
 ADD etc/nslcd.conf /etc/nslcd.conf
 RUN chmod 660 /etc/nslcd.conf
-ADD etc/ssl/certs/IPB* /etc/ssl/certs/
+#ADD etc/ssl/certs/IPB* /etc/ssl/certs/
 RUN update-rc.d nslcd enable
 RUN mkdir /raid
 RUN ln -s /home /raid/home

@@ -15,7 +15,7 @@ NAME="korseby/rstudio-ipb"
 MEM="--memory=60g"
 
 # Ports
-PORT_PUB=9000
+PORT_PUB=80
 PORT_DOCKER=8080
 
 # Volumes
