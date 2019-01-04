@@ -12,14 +12,14 @@ NAME="korseby/rstudio-ipb"
 #CPU_SHARES="--cpu-shares=8"
 #CPU_SETS="--cpuset-cpus=0-$[$CPU_SHARES-1]"
 #CPU_MEMS="--cpuset-mems=0"
-MEM="--memory=60g"
+MEM="--memory=112g"
 
 # Ports
 PORT_PUB=80
 PORT_DOCKER=8080
 
 # Volumes
-VOL="--volume=/home:/home:rw --volume=/raid:/raid:rw --volume=/vol:/vol:rw --volume=/mnt:/mnt:ro"
+VOL="--volume=/home:/home:rw --volume=/raid:/raid:rw --volume=/vol:/vol:rw --volume=/ifs:/ifs:rw --volume=/mnt:/mnt:ro"
 
 
 
