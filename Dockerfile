@@ -45,7 +45,7 @@ RUN apt-get -y install curl wget gdebi-core psmisc libapparmor1 sudo cmake ed fr
 #RUN apt-get -y install imagemagick
 
 # Rsbml needs libsbml == 5.10.2, so install that
-RUN apt-get -y install libsbml5-dev libsbml5-python libsbml5-perl libsbml5-java libsbml5-cil libsbml5-dbg
+RUN apt-get -y install libsbml5-dev libsbml5-python libsbml5-perl libsbml5-java libsbml5-cil
 WORKDIR /usr/src
 RUN wget -O libSBML-5.10.2-core-src.tar.gz 'http://downloads.sourceforge.net/project/sbml/libsbml/5.10.2/stable/libSBML-5.10.2-core-src.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.10.2%2Fstable%2F' && tar xzvf libSBML-5.10.2-core-src.tar.gz ; cd libsbml-5.10.2 ; CXXFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=/usr && make && make install && ldconfig
 RUN pip install python-libsbml
