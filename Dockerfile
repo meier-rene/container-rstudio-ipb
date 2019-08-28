@@ -45,10 +45,11 @@ RUN apt-get -y install curl wget gdebi-core psmisc libapparmor1 sudo cmake ed fr
 #RUN apt-get -y install imagemagick
 
 # Rsbml needs libsbml == 5.10.2, so install that
-#RUN apt-get -y install libsbml5-dev libsbml5-python libsbml5-perl libsbml5-java libsbml5-cil libsbml5-dbg
-#WORKDIR /usr/src
-#RUN wget -O libSBML-5.10.2-core-src.tar.gz 'http://downloads.sourceforge.net/project/sbml/libsbml/5.10.2/stable/libSBML-5.10.2-core-src.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.10.2%2Fstable%2F' && tar xzvf libSBML-5.10.2-core-src.tar.gz ; cd libsbml-5.10.2 ; CXXFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=/usr && make && make install && ldconfig
+RUN apt-get -y install libsbml5-dev libsbml5-python libsbml5-perl libsbml5-java libsbml5-cil libsbml5-dbg
+WORKDIR /usr/src
+RUN wget -O libSBML-5.10.2-core-src.tar.gz 'http://downloads.sourceforge.net/project/sbml/libsbml/5.10.2/stable/libSBML-5.10.2-core-src.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.10.2%2Fstable%2F' && tar xzvf libSBML-5.10.2-core-src.tar.gz ; cd libsbml-5.10.2 ; CXXFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=/usr && make && make install && ldconfig
 RUN pip install python-libsbml
+RUN rm -rf /usr/src/ibsbml-5.10.2 && rm -f libSBML-5.10.2-core-src.tar.gz
 
 # Install RStudio from their repository
 #RUN wget -O /tmp/rstudio.ver --no-check-certificate -q https://s3.amazonaws.com/rstudio-server/current.ver
@@ -58,11 +59,11 @@ RUN pip install python-libsbml
 
 
 
-# Update java in R
-RUN R CMD javareconf
-
 # Set repositories permanently
 #RUN echo "utils::setRepositories(ind=1:5)" >> /etc/R/Rprofile.site
+
+# Update java in R
+RUN R CMD javareconf
 
 # Install R packages
 RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\")"; done
@@ -76,13 +77,26 @@ RUN for PACK in $PACK_URL; do R -e "library('devtools'); install_url(\"$PACK\")"
 RUN R -e "if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")"
 RUN for PACK in $PACK_BIOC; do R -e "BiocManager::install(\"$PACK\", dep=TRUE, ask=FALSE)"; done
 
-# Install Bioconductor "Metabolomics" flavour
+# Install Bioconductor Proteomics / Metabolomics flavour
 #ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
 #ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/install.R /tmp/installFromBiocViews.R
 #RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
 
-# Update Bioconductor to most recent version
-#RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(ask=F)"
+# Bioconductor: ProtMetCore
+ADD https://raw.githubusercontent.com/Bioconductor/bioc_docker/master/out/release_protmetcore/install.R /tmp/
+ADD http://master.bioconductor.org/todays-date /tmp/
+RUN R -f /tmp/install.R
+RUN rm -f /tmp/install.R
+
+# Bioconductor: Metabolomics
+ADD https://raw.githubusercontent.com/Bioconductor/bioc_docker/master/out/release_metabolomics/install.R /tmp/
+ADD http://master.bioconductor.org/todays-date /tmp/
+RUN R CMD javareconf
+ENV NETCDF_INCLUDE=/usr/include
+ENV OPEN_BABEL_LIBDIR /usr/lib/openbabel/2.3.2/
+ENV OPEN_BABEL_INCDIR /usr/include/openbabel-2.0/
+ADD install.R /tmp/
+RUN rm -f /tmp/install.R
 
 # Install github R packages from source
 RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
@@ -93,7 +107,7 @@ RUN R -e "library('devtools'); library('pcaMethods'); install_github(\"vbonhomme
 # Install CAMERA 1.33.3
 #RUN R -e 'library(devtools); install_github(repo="sneumann/CAMERA", ref="cbc9cdb2eba6438434c27fec5fa13c9e6fdda785")'
 
-# Install latest XCMS
+# Upgrade to  latest XCMS
 RUN R -e 'library(devtools); install_github("https://github.com/lgatto/ProtGenerics"); install_github("https://github.com/sneumann/mzR"); install_github("https://github.com/lgatto/MSnbase"); library(devtools); install_github(repo="sneumann/xcms", ref="24471b789ff4486688f0ba2aa1ac3373d93f38b7")'
 
 # Install BATMAN
