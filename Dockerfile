@@ -1,4 +1,4 @@
-FROM rocker:rstudio:3.6.1
+FROM rocker/rstudio:3.6.1
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 
@@ -37,7 +37,7 @@ RUN apt-get -y dist-upgrade
 #RUN dpkg-reconfigure locales
 
 # Install files needed for compilation
-RUN apt-get -y install curl wget gdebi-core psmisc libapparmor1 sudo cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libgfortran-5-dev libglu1-mesa-dev libgomp1 libmariadb-client-lgpl-dev libmysqlclient-dev libssl-dev libxml2-dev libxpm-dev pkg-config python tk8.6-dev unzip xorg-dev software-properties-common bibtool texlive-full texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 libgtk2.0-dev libgtk-3-dev liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libnlopt-dev libopenbabel-dev libpcre3-dev libpng12-dev libtiff5-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip libudunits2-dev librsvg2-dev libgeos-dev xauth xinit xterm xvfb imagemagick
+RUN apt-get -y install curl wget gdebi-core psmisc libapparmor1 sudo cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev gfortran libglu1-mesa-dev libgomp1 libmariadb-client-lgpl-dev mysql-common libssl-dev libxml2-dev libxpm-dev pkg-config python tk8.6-dev unzip xorg-dev software-properties-common bibtool texlive-full texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 libgtk2.0-dev libgtk-3-dev liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libnlopt-dev libopenbabel-dev libpcre3-dev libpng-dev libtiff5-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip libudunits2-dev librsvg2-dev libgeos-dev xauth xinit xterm xvfb imagemagick
 
 # Install ImageMagick separately
 #RUN add-apt-repository -y ppa:opencpu/imagemagick
