@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM rocker:rstudio:3.6.1
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 
@@ -15,66 +15,54 @@ ENV LD_LIBRARY_PATH="/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib"
 
 # CRAN packages and Bioconductor are joined
 ENV PACK_R="abind ade4 akima ape arm BH cba clValid corrplot cpca curl DBI dendextend devtools diverse doMC doSNOW eigenfaces extrafont FactoMineR FD flexclust geometry ggplot2 gplots hash Hmisc httr intCor jsonlite klaR kohonen languageR limma lme4 lmerTest magic Matrix matrixStats mda memoise metabolomics MetStaT mixOmics multcomp multisom picante plotly plotrix pryr pvclust qtlcharts R6 randomForest rcdk Rcpp rmarkdown RMySQL robustrao rsm rstudioapi RJSONIO RUnit squash sva tools vegan xlsx xcms CAMERA Rdisop mtbls2 pcaMethods Risa ade4 affxparser affy annotate AnnotationDbi ape aroma.affymetrix ArrayExpress arrayQuality ArrayTools Biobase biomaRt Biostrings BSgenome cummeRbund DESeq2 easyRNASeq edgeR gage gcrma geiger genefilter geneplotter genomeIntervals GenomicAlignments GenomicFeatures GenomicRanges ggbio ggplot2 ggtree gmapR GO.db GOstats GSEABase GSVA gtools hopach IRanges KEGG.db KEGGgraph KEGGprofile KEGGREST limma made4 oligo omicade4 pathview plgem RColorBrewer RCy3 RCytoscape ropls Rsamtools Rsubread rtracklayer ShortRead simpleaffy topGO VariantAnnotation VennDiagram WGCNA XMLRPC DEXSeq SRAdb HTqPCR ddCt ShortRead ChemmineR"
-ENV PACK_GITHUB="sneumann/xcms rajarshi/cdkr/rinchi cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
+ENV PACK_GITHUB="lgatto/ProtGenerics sneumann/mzR lgatto/MSnbase sneumann/xcms rajarshi/cdkr/rinchi cbroeckl/RAMClustR c-ruttkies/MetFragR/metfRag dragua/xlsx glibiseller/IPO jcapelladesto/geoRge rstudio/rmarkdown sneumann/MetShot vbonhomme/Momocs vbonhomme/eigenfaces ramnathv/rCharts"
 ENV PACK_URL="https://cran.r-project.org/src/contrib/Archive/GenABEL.data/GenABEL.data_1.0.0.tar.gz https://cran.r-project.org/src/contrib/Archive/GenABEL/GenABEL_1.8-0.tar.gz"
 
 
 
 # Add cran R backport
 RUN apt-get -y update
-RUN apt-get -y install apt-transport-https locales
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/" >> /etc/apt/sources.list
+#RUN apt-get -y install apt-transport-https locales
+#RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+#RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/" >> /etc/apt/sources.list
 
 # Update and upgrade
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 
 # Generate locales
-ENV LC_ALL="en_US.UTF-8"
-ENV LC_CTYPE="en_US.UTF-8"
-RUN locale-gen $LC_ALL
-RUN dpkg-reconfigure locales
+#ENV LC_ALL="en_US.UTF-8"
+#ENV LC_CTYPE="en_US.UTF-8"
+#RUN locale-gen $LC_ALL
+#RUN dpkg-reconfigure locales
 
-# Install RStudio-related packages
-RUN apt-get -y install curl wget r-base r-base-dev gdebi-core psmisc libapparmor1 sudo
-
-# Install development files needed for compilation
-RUN apt-get -y install cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libgfortran-5-dev libglu1-mesa-dev libgomp1 libmariadb-client-lgpl-dev libmysqlclient-dev libssl-dev libxml2-dev libxpm-dev pkg-config python tk8.6-dev unzip xorg-dev software-properties-common
-
-# Install tex-related stuff (needed by some R packages)
-RUN apt-get -y install bibtool texlive-full texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended
-
-# Install libraries needed by R packages
-RUN apt-get -y install gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 libgtk2.0-dev libgtk-3-dev liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libnlopt-dev libopenbabel-dev libpcre3-dev libpng12-dev libtiff5-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip libudunits2-dev librsvg2-dev libgeos-dev
+# Install files needed for compilation
+RUN apt-get -y install curl wget gdebi-core psmisc libapparmor1 sudo cmake ed freeglut3-dev g++ gcc git libcurl4-gnutls-dev libgfortran-4.8-dev libgfortran-5-dev libglu1-mesa-dev libgomp1 libmariadb-client-lgpl-dev libmysqlclient-dev libssl-dev libxml2-dev libxpm-dev pkg-config python tk8.6-dev unzip xorg-dev software-properties-common bibtool texlive-full texlive-bibtex-extra texlive-lang-german texlive-lang-english texlive-latex-base texlive-latex-recommended gdb libbz2-dev libdigest-sha-perl libexpat1-dev libfftw3-dev libgl1-mesa-dev libglu1-mesa-dev libgmp3-dev libgsl0-dev libgsl0-dbg libgsl2 libgtk2.0-dev libgtk-3-dev liblzma-dev libmpfr4-dbg libmpfr-dev libnetcdf-dev libnlopt-dev libopenbabel-dev libpcre3-dev libpng12-dev libtiff5-dev libxml2-dev netcdf-bin openjdk-8-jre-headless openjdk-8-jdk-headless libglpk-dev libglpk-java python-dev python-pip libudunits2-dev librsvg2-dev libgeos-dev xauth xinit xterm xvfb imagemagick
 
 # Install ImageMagick separately
-RUN add-apt-repository -y ppa:opencpu/imagemagick
-RUN apt -y update
-RUN apt-get -y install imagemagick
-
-# Install Xorg environment (needed for compiling some Bioc packages)
-RUN apt-get -y install xauth xinit xterm xvfb
+#RUN add-apt-repository -y ppa:opencpu/imagemagick
+#RUN apt -y update
+#RUN apt-get -y install imagemagick
 
 # Rsbml needs libsbml == 5.10.2, so install that
 #RUN apt-get -y install libsbml5-dev libsbml5-python libsbml5-perl libsbml5-java libsbml5-cil libsbml5-dbg
-WORKDIR /usr/src
-RUN wget -O libSBML-5.10.2-core-src.tar.gz 'http://downloads.sourceforge.net/project/sbml/libsbml/5.10.2/stable/libSBML-5.10.2-core-src.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.10.2%2Fstable%2F' && tar xzvf libSBML-5.10.2-core-src.tar.gz ; cd libsbml-5.10.2 ; CXXFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=/usr && make && make install && ldconfig
+#WORKDIR /usr/src
+#RUN wget -O libSBML-5.10.2-core-src.tar.gz 'http://downloads.sourceforge.net/project/sbml/libsbml/5.10.2/stable/libSBML-5.10.2-core-src.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fsbml%2Ffiles%2Flibsbml%2F5.10.2%2Fstable%2F' && tar xzvf libSBML-5.10.2-core-src.tar.gz ; cd libsbml-5.10.2 ; CXXFLAGS=-fPIC CFLAGS=-fPIC ./configure --prefix=/usr && make && make install && ldconfig
 RUN pip install python-libsbml
 
 # Install RStudio from their repository
-RUN wget -O /tmp/rstudio.ver --no-check-certificate -q https://s3.amazonaws.com/rstudio-server/current.ver
-RUN wget -O /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb -q http://download2.rstudio.org/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
-RUN dpkg -i /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
-RUN rm /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
+#RUN wget -O /tmp/rstudio.ver --no-check-certificate -q https://s3.amazonaws.com/rstudio-server/current.ver
+#RUN wget -O /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb -q http://download2.rstudio.org/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
+#RUN dpkg -i /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
+#RUN rm /tmp/rstudio-server-$(cat /tmp/rstudio.ver)-amd64.deb
 
 
 
 # Update java in R
 RUN R CMD javareconf
 
-#Set repositories permanently
-RUN echo "utils::setRepositories(ind=1:5)" >> /etc/R/Rprofile.site
+# Set repositories permanently
+#RUN echo "utils::setRepositories(ind=1:5)" >> /etc/R/Rprofile.site
 
 # Install R packages
 RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\")"; done
@@ -83,17 +71,18 @@ RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\")"; done
 RUN for PACK in $PACK_URL; do R -e "library('devtools'); install_url(\"$PACK\")"; done
 
 # Install Bioconductor manually first
-ADD installFromBiocViews.R /tmp/installFromBiocViews.R
-RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
-#RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", dep=TRUE, ask=FALSE)"; done
+#ADD installFromBiocViews.R /tmp/installFromBiocViews.R
+#RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
+RUN R -e "if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")"
+RUN for PACK in $PACK_BIOC; do R -e "BiocManager::install(\"$PACK\", dep=TRUE, ask=FALSE)"; done
 
 # Install Bioconductor "Metabolomics" flavour
 #ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/installFromBiocViews.R /tmp/installFromBiocViews.R
-ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/install.R /tmp/installFromBiocViews.R
-RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
+#ADD https://raw.githubusercontent.com/phnmnl/bioc_docker/master/out/release_metabolomics/install.R /tmp/installFromBiocViews.R
+#RUN /usr/bin/xvfb-run R -f /tmp/installFromBiocViews.R
 
 # Update Bioconductor to most recent version
-RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(ask=F)"
+#RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(ask=F)"
 
 # Install github R packages from source
 RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
@@ -104,6 +93,9 @@ RUN R -e "library('devtools'); library('pcaMethods'); install_github(\"vbonhomme
 # Install CAMERA 1.33.3
 #RUN R -e 'library(devtools); install_github(repo="sneumann/CAMERA", ref="cbc9cdb2eba6438434c27fec5fa13c9e6fdda785")'
 
+# Install latest XCMS
+RUN R -e 'library(devtools); install_github("https://github.com/lgatto/ProtGenerics"); install_github("https://github.com/sneumann/mzR"); install_github("https://github.com/lgatto/MSnbase"); library(devtools); install_github(repo="sneumann/xcms", ref="24471b789ff4486688f0ba2aa1ac3373d93f38b7")'
+
 # Install BATMAN
 RUN R -e "library('devtools'); install.packages('batman', repos='http://R-Forge.R-project.org')"
 
@@ -113,15 +105,15 @@ RUN R -e "devtools::install_git('https://gitlab.com/CarlBrunius/batchCorr.git')"
 # Install ROOT + Bioconductor xps
 # see http://bioconductor.org/packages/release/bioc/readmes/xps/README
 # Prevent Debian Bug
-RUN ln -s /usr/lib/gcc/x86_64-linux-gnu/5/libgfortranbegin.a /usr/lib/gcc/x86_64-linux-gnu/6/libgfortranbegin.a
-ENV ROOT_VER="6.06.08"
-RUN wget -O /usr/src/root-${ROOT_VER}.tar.gz https://root.cern.ch/download/root_v${ROOT_VER}.source.tar.gz
-WORKDIR /usr/src
-RUN tar -xvzf root-${ROOT_VER}.tar.gz
-WORKDIR /usr/src/root-$ROOT_VER
-RUN ./configure
-RUN make
-RUN bash -c 'source /usr/src/root-$ROOT_VER/bin/thisroot.sh && R -e "source(\"https://bioconductor.org/biocLite.R\"); biocLite(\"xps\")"'
+#RUN ln -s /usr/lib/gcc/x86_64-linux-gnu/5/libgfortranbegin.a /usr/lib/gcc/x86_64-linux-gnu/6/libgfortranbegin.a
+#ENV ROOT_VER="6.06.08"
+#RUN wget -O /usr/src/root-${ROOT_VER}.tar.gz https://root.cern.ch/download/root_v${ROOT_VER}.source.tar.gz
+#WORKDIR /usr/src
+#RUN tar -xvzf root-${ROOT_VER}.tar.gz
+#WORKDIR /usr/src/root-$ROOT_VER
+#RUN ./configure
+#RUN make
+#RUN bash -c 'source /usr/src/root-$ROOT_VER/bin/thisroot.sh && R -e "source(\"https://bioconductor.org/biocLite.R\"); biocLite(\"xps\")"'
 
 # Install SIRIUS
 RUN mkdir /usr/lib/sirius
@@ -170,11 +162,11 @@ RUN ln -s /home /raid/home
 
 
 # Create RStudio start script
-RUN echo "#!/bin/sh" > /usr/sbin/rstudio-server.sh
-RUN echo "service nslcd start" >> /usr/sbin/rstudio-server.sh
-RUN echo "sleep 10" >> /usr/sbin/rstudio-server.sh
-RUN echo "/usr/lib/rstudio-server/bin/rserver --server-daemonize=0" >> /usr/sbin/rstudio-server.sh
-RUN chmod +x /usr/sbin/rstudio-server.sh
+#RUN echo "#!/bin/sh" > /usr/sbin/rstudio-server.sh
+#RUN echo "service nslcd start" >> /usr/sbin/rstudio-server.sh
+#RUN echo "sleep 10" >> /usr/sbin/rstudio-server.sh
+#RUN echo "/usr/lib/rstudio-server/bin/rserver --server-daemonize=0" >> /usr/sbin/rstudio-server.sh
+#RUN chmod +x /usr/sbin/rstudio-server.sh
 
 
 
@@ -187,6 +179,6 @@ RUN apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/{cache,log}/ /t
 EXPOSE 8080
 
 # Define Entry point script
-WORKDIR /
-CMD ["/usr/sbin/rstudio-server.sh"]
+#WORKDIR /
+#CMD ["/usr/sbin/rstudio-server.sh"]
 
