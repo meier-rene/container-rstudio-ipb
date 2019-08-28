@@ -74,7 +74,7 @@ RUN for PACK in $PACK_URL; do R -e "library('devtools'); install_url(\"$PACK\")"
 # Install Bioconductor manually first
 #ADD installFromBiocViews.R /tmp/installFromBiocViews.R
 #RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
-RUN R -e "if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")"
+RUN R -e "if (!requireNamespace(\"BiocManager\", quietly = TRUE)) install.packages(\"BiocManager\")"
 RUN for PACK in $PACK_BIOC; do R -e "BiocManager::install(\"$PACK\", dep=TRUE, ask=FALSE)"; done
 
 # Install Bioconductor Proteomics / Metabolomics flavour
