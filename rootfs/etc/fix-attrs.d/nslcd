@@ -1,0 +1,2 @@
+/etc/nslcd.conf false root:root 0640 0750
+/etc/nsswitch.conf false root:root 0644 0755
