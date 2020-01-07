@@ -1,7 +1,7 @@
 # Full-blown RStudio Server metabolomics installation
 
-To install create a rstudio container image derived from rocker/rstudio without
-the VOLUME definition. This breaks user home dirs on IPB infrastructure.
+For the installation a rstudio container image derived from rocker/rstudio without
+the VOLUME definition is required. VOLUME breaks user home dirs on IPB infrastructure.
 ```
 git clone https://github.com/rocker-org/rocker-versioned.git
 cd rocker-versioned/rstudio
