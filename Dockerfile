@@ -1,11 +1,6 @@
-#we need a rstudio without the VOLUME definition
-#VOLUME breaks mounting of user directories
-#install with:
-#docker build . -t rstudio-ipb 
-#docker run -d --restart=always -p 80:8787 -v "/vol:/vol" -v "/mnt/ifs:/mnt/ifs" -v "/home:/home" -v "/raid:/raid" --name rstudio-ipb-run rstudio-ipb
-FROM rmeier/rstudio:3.6.2
+FROM rstudio:3.6.2
 
-MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
+MAINTAINER denbi-mash@ipb-halle.de
 
 LABEL Description="Full-blown RStudio Server metabolomics installation."
 
